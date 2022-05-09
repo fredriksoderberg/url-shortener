@@ -30,23 +30,18 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @SpringBootTest(classes = UrlShortenerService.class)
 @EnableJpaRepositories(basePackageClasses = UrlRepository.class)
 @EntityScan(basePackageClasses = UrlEntity.class)
-@ContextConfiguration(
-    initializers = UrlShortenerServiceTest.Initializer.class,
-    classes = {
-        DataSourceAutoConfiguration.class,
-        HibernateJpaAutoConfiguration.class
-    })
+@ContextConfiguration(initializers = UrlShortenerServiceTest.Initializer.class, classes = {
+    DataSourceAutoConfiguration.class, HibernateJpaAutoConfiguration.class})
 public class UrlShortenerServiceTest {
 
   @Autowired UrlShortenerService urlShortenerService;
   @Autowired UrlRepository urlRepository;
-  @MockBean
-  RandomKeyGenerator randomKeyGenerator;
+  @MockBean RandomKeyGenerator randomKeyGenerator;
 
   @Container
   static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(
-      "postgres:12").withDatabaseName("postgres").withUsername("user")
-      .withPassword("pass").withExposedPorts(5432);
+      "postgres:12").withDatabaseName("postgres").withUsername("user").withPassword("pass")
+      .withExposedPorts(5432);
 
   static class Initializer implements
       ApplicationContextInitializer<ConfigurableApplicationContext> {
@@ -72,15 +67,17 @@ public class UrlShortenerServiceTest {
     assertThat(urlEntity.getUrl(), is("https://www.dice.se"));
   }
 
-  @Test void shouldCreateNewUrlEntity() {
+  @Test
+  public void shouldCreateNewUrlEntity() {
     when(randomKeyGenerator.generate()).thenReturn("qks5o");
     UrlEntity requestUrlEntity = UrlEntity.builder().url("https://www.dice.se").build();
-    UrlEntity createdUrlEntity = urlShortenerService.createShortUrl(requestUrlEntity); 
+    UrlEntity createdUrlEntity = urlShortenerService.createShortUrl(requestUrlEntity);
     assertThat(createdUrlEntity.getUrl(), is("https://www.dice.se"));
     assertThat(createdUrlEntity.getKey(), is("qks5o"));
   }
 
-  @Test void shouldReturnExistingUrlEntity() {
+  @Test
+  public void shouldReturnExistingUrlEntity() {
     urlRepository.save(buildUrlEntity());
     UrlEntity requestUrlEntity = UrlEntity.builder().url("https://www.dice.se").build();
     UrlEntity createdUrlEntity = urlShortenerService.createShortUrl(requestUrlEntity);
@@ -88,7 +85,7 @@ public class UrlShortenerServiceTest {
     assertThat(createdUrlEntity.getKey(), is("qks5o"));
     verify(randomKeyGenerator, never()).generate();
   }
-  
+
   private UrlEntity buildUrlEntity() {
     return UrlEntity.builder()
         .key("qks5o")

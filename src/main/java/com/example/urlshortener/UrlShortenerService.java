@@ -16,31 +16,29 @@ public class UrlShortenerService {
   UrlRepository urlRepository;
   UrlKeyGenerator urlKeyGenerator;
 
-  UrlShortenerService(UrlRepository urlRepository,
-      UrlKeyGenerator urlKeyGenerator) {
+  UrlShortenerService(UrlRepository urlRepository, UrlKeyGenerator urlKeyGenerator) {
     this.urlRepository = urlRepository;
     this.urlKeyGenerator = urlKeyGenerator;
   }
 
-  @Cacheable(value="urls", key = "#urlKey")
+  @Cacheable(value = "urls", key = "#urlKey")
   public UrlEntity getUrl(final String urlKey) {
     log.info("Getting url from database for: {}", urlKey);
-    return urlRepository.findById(urlKey)
-        .orElseThrow(() -> new UrlNotFoundException(urlKey));
+    return urlRepository.findById(urlKey).orElseThrow(() -> new UrlNotFoundException(urlKey));
   }
 
   public UrlEntity createShortUrl(final UrlEntity url) {
     //Check if url already exists
     Optional<UrlEntity> existingUrlEntity = urlRepository.findByUrl(url.getUrl());
-    if(existingUrlEntity.isPresent()) {
+    if (existingUrlEntity.isPresent()) {
+      log.info("Url already exists for url: {}, key: {}", existingUrlEntity.get().getUrl(),
+          existingUrlEntity.get().getKey());
       return existingUrlEntity.get();
     }
-    
-    UrlEntity urlEntityToSave = url.toBuilder()
-        .created(LocalDateTime.now())
-        .key(urlKeyGenerator.generate())
-        .build();
-    log.info("Creating in database url entity: {}", urlEntityToSave.toString());
+
+    UrlEntity urlEntityToSave = url.toBuilder().created(LocalDateTime.now())
+        .key(urlKeyGenerator.generate()).build();
+    log.info("Saving url entity to database: {}", urlEntityToSave.toString());
     return urlRepository.save(urlEntityToSave);
   }
 }
