@@ -2,8 +2,8 @@
 
 * Creates short URL from provided (long) URL
 * Redirect requests with short URL to (long) URL
-* Short URL is created from random characters  
-* Short URL default length is 5
+* Short URL key is created from random characters  
+* Short URL key default length is 5
 * Short url keys and long urls are persisted in a Postgres database (running locally)
 * Requests to URL redirects are cached in Redis (running locally)
 
